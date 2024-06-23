@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Просмотр постов</title>
+  <link rel="stylesheet" href="css/posts.css">
+</head>
+<body>
+    <header>
+        <div class="wrap-logo">
+        <a id="buttoni" href="create.html" class="logo">Создать</a>
+          <a class="active" href="posts.html">Просмотр</a>
+        </div>
+        <nav>
+          
+          <a href="regist.html">Регистрация</a>
+          <a href="login.html">Вход</a>
+        </nav>
+      </header>
+  <h1>Посты</h1>
+  <div class="post" id="posts-container"></div>
+  
+
+  <script>
+    const postsContainer = document.getElementById('posts-container');
+    let loggedInUser = null; // Получаем информацию о залогиненном пользователе (например, из cookie или localStorage)
+    const authToken = localStorage.getItem('authToken');
+
+    // Проверка, залогинен ли пользователь
+    if (authToken) {
+      // Если залогинен, отображаем кнопку "Создать пост"
+      const createPostButton = document.createElement('buttoni');
+      createPostButton.addEventListener('click', () => {
+        window.location.href = 'create.html'; // Перенаправляем на страницу создания поста
+      });
+      postsContainer.appendChild(createPostButton);
+    }
+
+    // Получаем посты из localStorage
+    let posts = JSON.parse(localStorage.getItem('posts')) || [];
+
+    // Отрисовываем посты
+  
+    posts.forEach(post => {
+      const postElement = document.createElement('div');
+      postElement.innerHTML = `
+        <h2>${post.title}</h2>
+        <p id="post-content-${post.id}">${post.content}</p>
+        ${authToken && authToken === post.token ? `
+          <button data-id="${post.id}" class="delete-button">
+        <img src="https://img.icons8.com/?size=100&id=11705&format=png&color=000000" alt="Удалить"></button> 
+          <button data-id="${post.id}" class="edit-button">
+            <img src="https://img.icons8.com/?size=100&id=CrqU1Ypa53VY&format=png&color=000000" alt="Редактировать"></button>
+        ` : ''}
+      `;
+      postsContainer.appendChild(postElement);
+
+      // Добавляем слушатель событий на кнопку "Удалить"
+      const deleteButton = postElement.querySelector('.delete-button');
+      if (deleteButton) {
+        deleteButton.addEventListener('click', () => {
+          const postId = parseInt(deleteButton.dataset.id, 10);
+          
+          // Удаляем пост из localStorage
+          posts = posts.filter(p => p.id !== postId);
+          localStorage.setItem('posts', JSON.stringify(posts));
+
+          // Удаляем пост с страницы
+          postElement.remove();
+        });
+      }
+
+      // Добавляем слушатель событий на кнопку "Редактировать"
+      const editButton = postElement.querySelector('.edit-button');
+      if (editButton) {
+        editButton.addEventListener('click', () => {
+          const postId = parseInt(editButton.dataset.id, 10);
+
+          // Меняем текст поста на текстовое поле для редактирования
+          const postContentElement = postElement.querySelector(`#post-content-${postId}`);
+          const editInput = document.createElement('textarea');
+          editInput.value = postContentElement.textContent;
+          postContentElement.replaceWith(editInput);
+
+          // Добавляем кнопку "Сохранить"
+          const saveButton = document.createElement('button'); 
+          saveButton.innerHTML = `<img class="save-button" 
+          src="https://img.icons8.com/?size=100&id=kGOa1reHyAdz&format=png&color=000000" 
+          alt="Сохранить">`; 
+          postElement.appendChild(saveButton); 
+
+
+          // Обработка сохранения изменений
+          saveButton.addEventListener('click', () => {
+            // Обновляем текст поста в localStorage
+            const updatedPost = posts.find(p => p.id === postId);
+            updatedPost.content = editInput.value;
+            localStorage.setItem('posts', JSON.stringify(posts));
+
+            // Возвращаем текст поста
+            const updatedContent = document.createElement('p');
+            updatedContent.id = `post-content-${postId}`;
+            updatedContent.textContent = editInput.value;
+            editInput.replaceWith(updatedContent);
+
+            // Удаляем кнопку "Сохранить"
+            saveButton.remove();
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>
+  </script>
+</body>
+</html>

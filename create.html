@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Создать пост</title>
+  <link rel="stylesheet" href="css/create.css">
+</head>
+<body>
+    <header>
+        <div class="wrap-logo">
+        <a href="./create.html" class="logo">Создать</a>
+          <a class="active" href="./posts.html">Просмотр</a>
+        </div>
+        <nav>
+          
+          <a href="regist.html">Регистрация</a>
+          <a href="login.html">Вход</a>
+        </nav>
+      </header>
+  
+      <div class="sozd">
+    <h1>Создайте пост</h1>
+  <form id="create-post-form">
+    <label class="nazv" for="post-title">Название:</label>
+    <input  type="text" id="post-title" name="post-title" required><br><br>
+    <label class="nazv" for="post-content">Комментарий:</label>
+    <textarea id="post-content" name="post-content" placeholder="Введите текст поста..." required></textarea><br><br>
+    <div class="btn-a"><button class="btn" type="submit">Создать пост</button></div>
+  </form>
+</div>
+
+  <script>
+   const createPostForm = document.getElementById('create-post-form');
+    const authToken = localStorage.getItem('authToken');
+
+    createPostForm.addEventListener('submit', (event) => {
+      event.preventDefault(); // Предотвращаем отправку формы по умолчанию
+
+      const title = document.getElementById('post-title').value;
+      const content =document.getElementById('post-content').value;
+
+// Проверяем, залогинен ли пользователь
+if (authToken) {
+  // Если залогинен, создаем пост
+  const newPost = {
+    title: title,
+    content: content,
+    id: Date.now(),
+    token: authToken // Добавляем токен к посту
+  };
+
+  // Добавляем пост в localStorage
+  let posts = JSON.parse(localStorage.getItem('posts')) || [];
+  posts.push(newPost);
+  localStorage.setItem('posts', JSON.stringify(posts));
+
+  alert('Пост создан!');
+  createPostForm.reset(); // Очищаем форму
+  window.location.href = 'posts.html'; // Перенаправляем на страницу с постами
+} else {
+  alert('Вы должны быть авторизованы, чтобы создавать посты.');
+}
+});
+  </script>
+</body>
+</html>
